@@ -1,130 +1,211 @@
-# 🔐 Personal Password Generator
+<div align="center">
 
-A simple, fully offline tool that generates every possible password combination based on your personal information — names, birthdays, nicknames, pets, and more.
+```
+██████╗  █████╗ ███████╗███████╗███████╗ ██████╗ ██████╗  ██████╗ ███████╗
+██╔══██╗██╔══██╗██╔════╝██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝ ██╔════╝
+██████╔╝███████║███████╗███████╗█████╗  ██║   ██║██████╔╝██║  ███╗█████╗  
+██╔═══╝ ██╔══██║╚════██║╚════██║██╔══╝  ██║   ██║██╔══██╗██║   ██║██╔══╝  
+██║     ██║  ██║███████║███████║██║     ╚██████╔╝██║  ██║╚██████╔╝███████╗
+╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+```
 
-> **100% private.** Everything runs in your browser. No data is sent to any server.
+**Personal password wordlist generator — fully client-side, zero-trust, zero-server.**
+
+### 🔗 [https://banzoxog.github.io/password/](https://banzoxog.github.io/password/)
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-banzoxog.github.io-00e5ff?style=flat-square&logo=github)](https://banzoxog.github.io/password/)
+[![Single File](https://img.shields.io/badge/Architecture-Single_HTML_File-7c3aed?style=flat-square)](#)
+[![No Server](https://img.shields.io/badge/Backend-None-00ffa3?style=flat-square)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-white?style=flat-square)](#license)
+
+</div>
 
 ---
 
-## ✨ Features
+## What is this?
 
-- **Personal info inputs** — you, your partner, child, and pet
-- **Special words** — add custom words that matter to you
-- **Birthday numbers** — automatically extracts day, month, year, short year, full date from every birthday you enter
-- **Common numbers** — hundreds of 1–5 digit patterns (23, 99, 123, 1234, 12345, 54321…)
-- **Special characters** — pick any combination of `! @ # $ % & * - _ . ?`
-- **Leet speak variants** — auto-generates `a→4`, `e→3`, `i→1`, `o→0`, `s→5` variants
-- **Word combinations** — pairs every word with every other word + numbers + symbols
-- **Download as `.txt`** — plain list, one password per line, no labels
-- **Search & filter** — search, sort A–Z, longest first, shortest first
-- **Copy to clipboard** — one click per password
-- **No dependencies** — pure HTML, CSS, and JavaScript. One file.
+PassForge takes the personal info people commonly turn into passwords — names, birthdays, nicknames, pets, partners, kids — and **exhaustively generates every realistic combination** an attacker (or you) might try.
+
+Use it to:
+- **Test your own passwords** — see if yours appear in the list
+- **Recover a forgotten password** you know was based on personal info
+- **Security awareness** — show people why `Alex1998!` is not a strong password
+
+Everything runs in your browser. Nothing is ever transmitted anywhere.
 
 ---
 
-## 🚀 Usage
+## Demo
 
-### Option 1 — Open directly
-Just download `index.html` and open it in any browser. No install needed.
+<div align="center">
 
-### Option 2 — Clone and run
+> **[→ Open PassForge](https://banzoxog.github.io/password/)**
+
+</div>
+
+---
+
+## Features
+
+| | Feature | Detail |
+|---|---|---|
+| 🧠 | **Smart word expansion** | Every input word becomes lowercase, UPPERCASE, and Capitalized variants automatically |
+| 📅 | **Full date extraction** | Birthdays are split into `dd`, `mm`, `yyyy`, `yy`, `ddmm`, `mmdd`, `ddmmyyyy`, `ddmmyy` and more |
+| 🔢 | **Number patterns** | Optionally append birthday numbers or 60+ common numeric suffixes (`123`, `2580`, `99999`, …) |
+| 🔣 | **Special characters** | Toggle any of `! @ # $ % & * - _ . ?` — mixed into prefixes and suffixes |
+| 👫 | **Multi-person support** | You, partner, child, and pet fields — cross-person combos included |
+| ✍️ | **Custom words** | Three free-text word slots for anything not covered (city, team, favourite thing) |
+| ⚡ | **Instant results** | Generates tens of thousands of combos in milliseconds |
+| 📋 | **Click-to-copy** | Click any password in the list to copy it instantly |
+| ↓ | **Bulk export** | Download the full deduplicated list as a `.txt` file |
+| 🔒 | **Zero-trust** | Single HTML file, no fetch calls, no analytics, no cookies |
+
+---
+
+## How It Works
+
+```
+Input fields
+     │
+     ▼
+┌─────────────────────────────────────┐
+│  Word Collector                     │
+│  first · last · nick · pet · words  │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│  Case Expander                      │
+│  "alex" → alex / ALEX / Alex        │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│  Date Parser                        │
+│  1998-03-15 → 15 / 03 / 1998 /      │
+│  98 / 1503 / 0315 / 15031998 / …    │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│  Combination Engine                 │
+│  [prefix?] + word + [suffix?]       │
+│  word + word pairs                  │
+│  num × char cross-product suffixes  │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│  Deduplicator  (Set-based, O(n))    │
+│  Filters: length < 4 removed        │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+          Password list
+```
+
+---
+
+## Quickstart
+
 ```bash
-git clone https://github.com/your-username/personal-password-generator.git
-cd personal-password-generator
+# Option A — just open it
 open index.html
+
+# Option B — serve locally (any static server works)
+npx serve .
+python3 -m http.server 8080
 ```
 
-### Option 3 — GitHub Pages
-Push to GitHub and enable **Pages** (Settings → Pages → Branch: main → / root).  
-Your tool will be live at `https://your-username.github.io/personal-password-generator/`
+No `npm install`. No build step. No dependencies. It's one file.
 
 ---
 
-## 📖 How it works
+## Example Output
 
-1. Fill in whichever fields apply to you
-2. Choose whether to include birthday numbers, common numbers, or both
-3. Select which special characters to append
-4. Click **Generate passwords**
-5. Browse the preview list or hit **Download .txt** to get the full file
-
-### What gets generated
-
-For each word entered, the generator creates these variants:
-
-| Input | Variants generated |
-|-------|--------------------|
-| `ilyass` | `ilyass`, `ILYASS`, `Ilyass`, `1ly455` (leet) |
-
-Then it combines every variant with every number and every special character, in multiple positions:
+Given inputs `alex`, `mia`, birthday `15/03/1998`, special char `!`:
 
 ```
-ilyass
-ilyass12
-ilyass12!
-12ilyass
-ilyass!12
-!ilyass12
-ilyasssara
-ilyasssara1990
-...
-```
-
-Word pairs are also generated — every word combined with every other word, with and without numbers/symbols.
-
----
-
-## 📁 Output format
-
-The downloaded `.txt` file is plain text, one password per line:
-
-```
-ilyass
-Ilyass
-ILYASS
-1ly455
-ilyass1
-ilyass12
-ilyass123
-ilyass1234
-ilyass!
-ilyass@
-...
+alex
+Alex
+ALEX
+mia
+Mia
+MIA
+alexmia
+Alexmia
+alex1998
+Alex1998
+Alex1998!
+!Alex1998
+mia1503
+Mia15031998
+Alex!
+!mia
+... (thousands more)
 ```
 
 ---
 
-## 🛡️ Privacy
-
-- No internet connection required after loading the page
-- No analytics, no tracking, no cookies
-- No data leaves your device — ever
-- Safe to use on an air-gapped machine
-
----
-
-## 📂 Project structure
+## Project Structure
 
 ```
-personal-password-generator/
-├── index.html   ← the entire app (single file)
-└── README.md
+password/
+├── index.html      ← entire app (HTML + CSS + JS, ~600 lines)
+└── README.md       ← you are here
 ```
 
 ---
 
-## 🤝 Contributing
+## Privacy
 
-Pull requests welcome. Ideas for improvement:
+PassForge was designed from the ground up to never touch a server.
 
-- [ ] Add a second child slot
-- [ ] Add anniversary / important date field
-- [ ] Minimum / maximum password length filter
-- [ ] Regex filter for advanced search
-- [ ] Dark / light mode toggle
+- ✅ No form submissions
+- ✅ No `fetch()` or `XMLHttpRequest` to any backend
+- ✅ No localStorage or sessionStorage
+- ✅ No analytics (no GA, no Plausible, nothing)
+- ✅ No cookies
+- ✅ Fonts loaded from Google Fonts CDN *(remove the `<link>` tag for full offline use)*
+
+To verify: open DevTools → Network tab → generate passwords → watch zero requests fire.
 
 ---
 
-## 📄 License
+## Tech Stack
 
-MIT — do whatever you want with it.
+```
+HTML5          Semantic markup, single-file architecture
+CSS3           Custom properties · Grid · Flexbox · keyframe animations
+JavaScript     Vanilla ES2020 · Set-based dedup · No frameworks
+Fonts          Syne (display) + Space Mono (data) via Google Fonts
+Hosting        GitHub Pages
+```
+
+---
+
+## Roadmap
+
+- [ ] Leet-speak substitutions (`a→@`, `e→3`, `o→0`, `s→$`)
+- [ ] Minimum / maximum length filter
+- [ ] Regex search & filter on results
+- [ ] PWA support for full offline use
+- [ ] Dark / light theme toggle
+
+PRs welcome.
+
+---
+
+## License
+
+MIT — use it, fork it, embed it, do whatever.
+
+---
+
+<div align="center">
+
+Made with 🖤 by [@banzoxog](https://github.com/banzoxog)
+
+*If this helped you, drop a ⭐ — it means a lot.*
+
+</div>
