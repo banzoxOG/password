@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Password Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #222;
+      --border: #2e2e2e;
+      --border2: #3a3a3a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --accent: #4f8ef7;
+      --accent-bg: rgba(79,142,247,0.1);
+      --green: #3ecf8e;
+      --green-bg: rgba(62,207,142,0.1);
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    header { margin-bottom: 2.5rem; }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-bg);
+      border: 1px solid rgba(79,142,247,0.25);
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .tagline { color: var(--muted); font-size: 14px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 13px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: #444; }
+
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .check-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .check-row:first-child { padding-top: 0; }
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      background: var(--surface2);
+    }
+
+    .checkbox.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .checkbox.checked::after {
+      content: '';
+      width: 5px;
+      height: 9px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+      display: block;
+    }
+
+    .check-label { font-size: 14px; color: var(--text); font-weight: 500; }
+    .check-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .spec-tag {
+      padding: 7px 0;
+      font-size: 15px;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface2);
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      font-family: 'Courier New', monospace;
+      transition: all 0.12s;
+    }
+
+    .spec-tag:hover { border-color: var(--border2); color: var(--text); }
+
+    .spec-tag.active {
+      background: var(--green-bg);
+      border-color: rgba(62,207,142,0.4);
+      color: var(--green);
+    }
+
+    .gen-btn {
+      width: 100%;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      margin-top: 4px;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
+    }
+
+    .gen-btn:hover { opacity: 0.9; }
+    .gen-btn:active { transform: scale(0.99); }
+
+    .results { margin-top: 1.5rem; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat-card .val {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-card .lbl {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .search-bar {
+      flex: 1;
+      padding: 9px 13px;
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      outline: none;
+    }
+
+    .search-bar:focus { border-color: var(--accent); }
+    .search-bar::placeholder { color: #444; }
+
+    .dl-btn {
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--green-bg);
+      border: 1px solid rgba(62,207,142,0.35);
+      border-radius: var(--radius-sm);
+      color: var(--green);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    .dl-btn:hover { opacity: 0.85; }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 5px 14px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface2);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .filter-btn.active {
+      background: var(--surface);
+      border-color: var(--border2);
+      color: var(--text);
+    }
+
+    .pw-list-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .pw-list {
+      max-height: 460px;
+      overflow-y: auto;
+    }
+
+    .pw-list::-webkit-scrollbar { width: 5px; }
+    .pw-list::-webkit-scrollbar-track { background: transparent; }
+    .pw-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    .pw-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--text);
+      transition: background 0.1s;
+    }
+
+    .pw-item:hover { background: var(--surface2); }
+    .pw-item:last-child { border-bottom: none; }
+
+    .copy-btn {
+      font-size: 11px;
+      padding: 3px 9px;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      flex-shrink: 0;
+      transition: all 0.1s;
+    }
+
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+    .more-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 14px;
+    }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 12px;
+      color: #333;
+    }
+
+    @media (max-width: 540px) {
+      h1 { font-size: 22px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stats .stat-card:last-child { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Personal Tool</div>
+    <h1>Password Generator</h1>
+    <p class="tagline">Generate every possible password combination from your personal info. Runs 100% in your browser — nothing is sent anywhere.</p>
+  </header>
+
+  <!-- YOU -->
+  <div class="card">
+    <div class="card-title">You</div>
+    <div class="grid">
+      <div class="field"><label>First name</label><input id="fn" placeholder="e.g. Ilyass" /></div>
+      <div class="field"><label>Last name</label><input id="ln" placeholder="e.g. Benali" /></div>
+      <div class="field"><label>Birthday</label><input id="bd" placeholder="e.g. 15031990" /></div>
+      <div class="field"><label>Nickname</label><input id="nn" placeholder="e.g. Ily" /></div>
+    </div>
+  </div>
+
+  <!-- PARTNER -->
+  <div class="card">
+    <div class="card-title">Partner</div>
+    <div class="grid">
+      <div class="field"><label>First name</label><input id="pfn" placeholder="e.g. Sara" /></div>
+      <div class="field"><label>Last name</label><input id="pln" placeholder="e.g. Tazi" /></div>
+      <div class="field"><label>Birthday</label><input id="pbd" placeholder="e.g. 22071992" /></div>
+      <div class="field"><label>Nickname</label><input id="pnn" placeholder="e.g. Soso" /></div>
+    </div>
+  </div>
+
+  <!-- CHILD -->
+  <div class="card">
+    <div class="card-title">Child</div>
+    <div class="grid">
+      <div class="field"><label>First name</label><input id="cfn" placeholder="e.g. Adam" /></div>
+      <div class="field"><label>Birthday</label><input id="cbd" placeholder="e.g. 01052015" /></div>
+      <div class="field"><label>Nickname</label><input id="cnn" placeholder="e.g. Adoum" /></div>
+    </div>
+  </div>
+
+  <!-- PET -->
+  <div class="card">
+    <div class="card-title">Pet</div>
+    <div class="grid">
+      <div class="field"><label>Name</label><input id="pet" placeholder="e.g. Milo" /></div>
+      <div class="field"><label>Breed / type</label><input id="petb" placeholder="e.g. Husky" /></div>
+    </div>
+  </div>
+
+  <!-- SPECIAL WORDS -->
+  <div class="card">
+    <div class="card-title">Special words</div>
+    <div class="grid">
+      <div class="field"><label>Word 1</label><input id="sw1" placeholder="e.g. Love" /></div>
+      <div class="field"><label>Word 2</label><input id="sw2" placeholder="e.g. Star" /></div>
+      <div class="field"><label>Word 3</label><input id="sw3" placeholder="e.g. Maroc" /></div>
+    </div>
+  </div>
+
+  <!-- NUMBERS -->
+  <div class="card">
+    <div class="card-title">Numbers to add</div>
+    <div id="num-options">
+      <div class="check-row" onclick="toggleCheck('use-birthday')">
+        <div class="checkbox checked" id="cb-use-birthday"></div>
+        <div>
+          <div class="check-label">Birthday numbers</div>
+          <div class="check-desc">Extracts every date part from birthdays you entered — day, month, year, short year, full date and more</div>
+        </div>
+      </div>
+      <div class="check-row" onclick="toggleCheck('use-common')">
+        <div class="checkbox checked" id="cb-use-common"></div>
+        <div>
+          <div class="check-label">Common numbers</div>
+          <div class="check-desc">Hundreds of patterns: 1, 7, 12, 23, 69, 99, 123, 456, 777, 1234, 2580, 12344, 12345, 54321, 99999 and many more 2–5 digit combos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPECIAL CHARS -->
+  <div class="card">
+    <div class="card-title">Special characters</div>
+    <div class="spec-grid" id="spec-chars">
+      <div class="spec-tag active" data-val="!">!</div>
+      <div class="spec-tag active" data-val="@">@</div>
+      <div class="spec-tag active" data-val="#">#</div>
+      <div class="spec-tag" data-val="$">$</div>
+      <div class="spec-tag" data-val="%">%</div>
+      <div class="spec-tag" data-val="&">&amp;</div>
+      <div class="spec-tag" data-val="*">*</div>
+      <div class="spec-tag" data-val="-">-</div>
+      <div class="spec-tag" data-val="_">_</div>
+      <div class="spec-tag" data-val=".">.</div>
+      <div class="spec-tag" data-val="?">?</div>
+      <div class="spec-tag" data-val="none">None</div>
+    </div>
+  </div>
+
+  <button class="gen-btn" onclick="generate()">⚡ Generate passwords</button>
+
+  <!-- RESULTS -->
+  <div class="results" id="results" style="display:none;">
+    <div class="stats">
+      <div class="stat-card"><div class="val" id="total-count">0</div><div class="lbl">total passwords</div></div>
+      <div class="stat-card"><div class="val" id="shown-count">0</div><div class="lbl">shown / filtered</div></div>
+      <div class="stat-card"><div class="val" id="avg-count">0</div><div class="lbl">avg length</div></div>
+    </div>
+
+    <div class="action-row">
+      <input class="search-bar" id="search-bar" placeholder="Search passwords..." oninput="filterPasswords()" />
+      <button class="dl-btn" onclick="downloadTxt()">↓ Download .txt</button>
+    </div>
+
+    <div class="filter-row">
+      <div class="filter-btn active" data-f="all" onclick="setFilter('all',this)">All</div>
+      <div class="filter-btn" data-f="az"   onclick="setFilter('az',this)">A – Z</div>
+      <div class="filter-btn" data-f="len"  onclick="setFilter('len',this)">Longest first</div>
+      <div class="filter-btn" data-f="short" onclick="setFilter('short',this)">Shortest first</div>
+    </div>
+
+    <div class="pw-list-wrap">
+      <div class="pw-list" id="pw-list"></div>
+    </div>
+  </div>
+
+  <footer>runs entirely in your browser &mdash; no data is sent anywhere</footer>
+
+</div>
+<script>
+  let allPasswords = [];
+  let currentFilter = 'all';
+  let selectedChars = new Set(['!','@','#']);
+  const checks = { 'use-birthday': true, 'use-common': true };
+
+  function toggleCheck(id) {
+    checks[id] = !checks[id];
+    const el = document.getElementById('cb-' + id);
+    if (checks[id]) el.classList.add('checked'); else el.classList.remove('checked');
+  }
+
+  document.getElementById('spec-chars').addEventListener('click', e => {
+    const tag = e.target.closest('.spec-tag');
+    if (!tag) return;
+    if (tag.dataset.val === 'none') {
+      selectedChars.clear();
+      document.querySelectorAll('.spec-tag').forEach(t => t.classList.remove('active'));
+      tag.classList.add('active');
+      return;
+    }
+    document.querySelector('.spec-tag[data-val="none"]').classList.remove('active');
+    tag.classList.toggle('active');
+    if (tag.classList.contains('active')) selectedChars.add(tag.dataset.val);
+    else selectedChars.delete(tag.dataset.val);
+  });
+
+  function v(id) { return document.getElementById(id).value.trim(); }
+
+  function variants(word) {
+    if (!word) return [];
+    const lo = word.toLowerCase();
+    const up = word.toUpperCase();
+    const cap = lo.charAt(0).toUpperCase() + lo.slice(1);
+    const leet = lo.replace(/a/g,'4').replace(/e/g,'3').replace(/i/g,'1').replace(/o/g,'0').replace(/s/g,'5');
+    return [...new Set([lo, up, cap, word, leet])].filter(Boolean);
+  }
+
+  function getBirthdayNumbers() {
+    const nums = new Set();
+    [v('bd'), v('pbd'), v('cbd')].filter(Boolean).forEach(raw => {
+      const d = raw.replace(/\D/g,'');
+      if (!d) return;
+      nums.add(d);
+      if (d.length >= 2) { nums.add(d.slice(0,2)); nums.add(d.slice(-2)); }
+      if (d.length >= 4) { nums.add(d.slice(0,4)); nums.add(d.slice(-4)); }
+      if (d.length >= 6) { nums.add(d.slice(0,6)); nums.add(d.slice(-6)); }
+      if (d.length === 8) {
+        nums.add(d.slice(0,2)); nums.add(d.slice(2,4)); nums.add(d.slice(4,8));
+        nums.add(d.slice(4,6)); nums.add(d.slice(6,8));
+        nums.add(d.slice(0,4) + d.slice(6,8));
+      }
+    });
+    return [...nums].filter(Boolean);
+  }
+
+  function getCommonNumbers() {
+    const list = new Set();
+    [1,2,3,4,5,6,7,8,9].forEach(n => list.add(String(n)));
+    [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,30,31,32,33,42,45,55,56,66,69,70,77,78,88,99].forEach(n => list.add(String(n)));
+    for (let i = 1; i <= 31; i++) list.add(String(i));
+    for (let i = 1; i <= 12; i++) list.add(i < 10 ? '0'+i : String(i));
+    [100,101,111,112,123,124,125,132,143,154,159,163,200,210,211,212,213,222,234,235,246,256,
+     321,333,345,346,355,369,400,420,421,432,441,456,500,512,520,543,555,600,612,621,654,666,
+     700,711,720,777,800,801,811,852,888,900,901,911,987,999].forEach(n => list.add(String(n)));
+    [1000,1001,1111,1112,1122,1123,1212,1213,1234,1235,1236,1245,1256,1313,1314,1357,1379,
+     1414,1423,1432,1443,1456,1500,1512,1520,1523,1534,1543,1600,1616,1700,1712,1720,1800,
+     1812,1820,1900,1901,1911,1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,
+     2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,
+     2019,2020,2021,2022,2023,2024,2025,2112,2121,2143,2222,2345,2346,2357,2469,2580,2581,
+     3141,3210,3333,3456,3579,4321,4444,4455,4567,5432,5555,5678,6543,6666,6789,7654,7777,
+     7890,8765,8888,9876,9999].forEach(n => list.add(String(n)));
+    [10000,11111,12123,12234,12321,12343,12344,12345,12346,12354,12365,12456,13245,13456,
+     13579,14253,14325,21345,23456,23457,34567,43210,54321,55555,56789,65432,67890,76543,
+     87654,98765,99999,11223,22334,33445,44556,55667,66778,77889,88990].forEach(n => list.add(String(n)));
+    return [...list];
+  }
+
+  function getNumbers() {
+    const nums = new Set(['']);
+    if (checks['use-birthday']) getBirthdayNumbers().forEach(n => nums.add(n));
+    if (checks['use-common']) getCommonNumbers().forEach(n => nums.add(n));
+    return [...nums];
+  }
+
+  function getSpecials() {
+    const chars = [...selectedChars].filter(c => c !== 'none');
+    return chars.length ? ['', ...chars] : [''];
+  }
+
+  function generate() {
+    const words = [];
+    ['fn','ln','nn','pfn','pln','pnn','cfn','cnn','pet','petb','sw1','sw2','sw3'].forEach(id => {
+      const w = v(id);
+      if (w) words.push(...variants(w));
+    });
+
+    const uniq = [...new Set(words)].filter(Boolean);
+    if (!uniq.length) { alert('Please fill in at least one field.'); return; }
+
+    const nums = getNumbers();
+    const specs = getSpecials();
+    const set = new Set();
+
+    uniq.forEach(a => {
+      nums.forEach(n => {
+        specs.forEach(s => {
+          set.add(a + n + s);
+          if (n) { set.add(n + a + s); set.add(a + s + n); }
+          if (s && n) set.add(s + a + n);
+        });
+      });
+      uniq.forEach(b => {
+        if (b === a) return;
+        set.add(a + b);
+        nums.forEach(n => {
+          if (n) { set.add(a + b + n); set.add(a + n + b); set.add(n + a + b); }
+          specs.forEach(s => {
+            if (s) { set.add(a + b + n + s); set.add(a + b + s); }
+          });
+        });
+      });
+    });
+
+    allPasswords = [...set].filter(p => p.length >= 4 && p.length <= 24);
+    const total = allPasswords.length;
+    const avg = Math.round(allPasswords.reduce((s,p) => s + p.length, 0) / total);
+
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.f === 'all'));
+    document.getElementById('total-count').textContent = total.toLocaleString();
+    document.getElementById('avg-count').textContent = avg;
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('search-bar').value = '';
+    renderList(allPasswords);
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function getSorted(list) {
+    if (currentFilter === 'az')    return list.slice().sort((a,b) => a.localeCompare(b));
+    if (currentFilter === 'len')   return list.slice().sort((a,b) => b.length - a.length);
+    if (currentFilter === 'short') return list.slice().sort((a,b) => a.length - b.length);
+    return list;
+  }
+
+  function setFilter(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    filterPasswords();
+  }
+
+  function filterPasswords() {
+    const q = document.getElementById('search-bar').value.toLowerCase();
+    let list = q ? allPasswords.filter(p => p.toLowerCase().includes(q)) : allPasswords.slice();
+    list = getSorted(list);
+    renderList(list);
+  }
+
+  function renderList(list) {
+    const MAX = 500;
+    const shown = list.slice(0, MAX);
+    document.getElementById('shown-count').textContent = list.length.toLocaleString();
+    const container = document.getElementById('pw-list');
+    container.innerHTML = shown.map(pw => {
+      const safe = pw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return `<div class="pw-item"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safe}</span><button class="copy-btn" onclick="copyPw(this,'${safe}')">copy</button></div>`;
+    }).join('') + (list.length > MAX ? `<div class="more-note">Showing first 500 of ${list.length.toLocaleString()} — download .txt to get all of them</div>` : '');
+  }
+
+  function copyPw(btn, pw) {
+    navigator.clipboard.writeText(pw).then(() => {
+      btn.textContent = 'copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  }
+
+  function downloadTxt() {
+    const q = document.getElementById('search-bar').value.toLowerCase();
+    let list = q ? allPasswords.filter(p => p.toLowerCase().includes(q)) : allPasswords.slice();
+    list = getSorted(list);
+    const blob = new Blob([list.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'passwords.txt'; a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>
